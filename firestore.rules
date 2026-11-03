@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function isValidVehicle(data) {
+      return data.make is string && data.make.size() > 0 && data.make.size() <= 100
+        && data.model is string && data.model.size() > 0 && data.model.size() <= 120
+        && (data.price is int || data.price is float) && data.price >= 0
+        && (data.mileage is int || data.mileage is float) && data.mileage >= 0
+        && data.status in ['available', 'sold', 'hidden']
+        && data.images is list && data.images.size() <= 50;
+    }
+
+    function isValidSiteSettings(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 150
+        && data.whatsapp is string && data.whatsapp.size() > 0 && data.whatsapp.size() <= 50
+        && data.address is string && data.address.size() > 0 && data.address.size() <= 400;
+    }
+
+    function isValidReview(data) {
+      return data.authorName is string && data.authorName.size() > 0 && data.authorName.size() <= 120
+        && (data.rating is int || data.rating is float) && data.rating >= 1 && data.rating <= 5
+        && data.comment is string && data.comment.size() > 0 && data.comment.size() <= 2000
+        && data.isApproved is bool;
+    }
+
+    match /vehicles/{vehicleId} {
+      allow read: if true;
+      allow write: if isValidId(vehicleId) && isValidVehicle(incoming());
+      allow delete: if isValidId(vehicleId);
+    }
+
+    match /siteSettings/{settingsId} {
+      allow read: if true;
+      allow write: if isValidId(settingsId) && isValidSiteSettings(incoming());
+      allow delete: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if isValidId(reviewId) && isValidReview(incoming());
+      allow delete: if isValidId(reviewId);
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Veneza Veículos",
+  "description": "Plataforma automotiva premium da Veneza Veículos em Garanhuns - PE. Catálogo exclusivo de seminovos selecionados e atendimento de alto padrão.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

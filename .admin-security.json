@@ -1,0 +1,6 @@
+{
+  "pinHash": "e0ec56b9534c4ee43f016c733e4e306f9c167ae8b14ea8ea6b504e6b4a09986e62fef19667b207584747fb1c753f29393e8ea63e253a61c195c7d5703d7445e6",
+  "pinSalt": "444b2fabff3a7f89f978f2d5339ccac1",
+  "jwtSecret": "eea3fd5ca69e1295ab852fe78c8f17b76bd46387064d5c00e714c0871c60dba3",
+  "failedAttempts": {}
+}

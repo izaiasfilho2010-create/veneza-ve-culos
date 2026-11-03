@@ -1,0 +1,76 @@
+{
+  "entities": {
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Veículo disponível ou vendido no catálogo da Veneza Veículos",
+      "type": "object",
+      "properties": {
+        "make": { "type": "string", "maxLength": 60, "description": "Marca do veículo" },
+        "model": { "type": "string", "maxLength": 80, "description": "Modelo do veículo" },
+        "version": { "type": "string", "maxLength": 100, "description": "Versão do veículo" },
+        "manufactureYear": { "type": "number", "description": "Ano de fabricação" },
+        "modelYear": { "type": "number", "description": "Ano do modelo" },
+        "price": { "type": "number", "description": "Preço em Reais (BRL)" },
+        "mileage": { "type": "number", "description": "Quilometragem rodada" },
+        "transmission": { "type": "string", "maxLength": 40, "description": "Tipo de câmbio" },
+        "fuel": { "type": "string", "maxLength": 40, "description": "Tipo de combustível" },
+        "color": { "type": "string", "maxLength": 40, "description": "Cor da carroceria" },
+        "doors": { "type": "number", "description": "Número de portas" },
+        "description": { "type": "string", "maxLength": 5000, "description": "Descrição detalhada" },
+        "features": { "type": "array", "description": "Lista de opcionais e equipamentos" },
+        "status": { "type": "string", "enum": ["available", "sold", "hidden"], "description": "Status de publicação" },
+        "images": { "type": "array", "description": "Fotografias reais do veículo" },
+        "mainImageIndex": { "type": "number", "description": "Índice da fotografia principal" },
+        "createdAt": { "type": "string", "description": "Data de cadastro ISO string ou timestamp" },
+        "updatedAt": { "type": "string", "description": "Data da última alteração" }
+      },
+      "required": ["make", "model", "version", "manufactureYear", "modelYear", "price", "mileage", "transmission", "fuel", "color", "doors", "status", "images"]
+    },
+    "SiteSettings": {
+      "title": "SiteSettings",
+      "description": "Configurações institucionais oficiais da concessionária Veneza Veículos",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 120, "description": "Nome da concessionária" },
+        "phone": { "type": "string", "maxLength": 40, "description": "Telefone de contato" },
+        "whatsapp": { "type": "string", "maxLength": 40, "description": "WhatsApp com DDD" },
+        "address": { "type": "string", "maxLength": 300, "description": "Endereço físico completo" },
+        "hours": { "type": "string", "maxLength": 600, "description": "Horários de funcionamento" },
+        "instagram": { "type": "string", "maxLength": 300, "description": "Link do Instagram oficial" },
+        "logoUrl": { "type": "string", "maxLength": 1000, "description": "URL do logotipo" },
+        "facadeUrl": { "type": "string", "maxLength": 1000, "description": "URL da foto da fachada" },
+        "aboutText": { "type": "string", "maxLength": 3000, "description": "Texto institucional sobre a concessionária" },
+        "updatedAt": { "type": "string", "description": "Data da última atualização" }
+      },
+      "required": ["name", "phone", "whatsapp", "address", "hours"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Avaliação real de cliente da Veneza Veículos",
+      "type": "object",
+      "properties": {
+        "authorName": { "type": "string", "maxLength": 100, "description": "Nome do autor" },
+        "rating": { "type": "number", "description": "Classificação de 1 a 5 estrelas" },
+        "comment": { "type": "string", "maxLength": 1000, "description": "Depoimento do cliente" },
+        "originalUrl": { "type": "string", "maxLength": 500, "description": "Link da avaliação no Google Maps" },
+        "isApproved": { "type": "boolean", "description": "Se a avaliação está autorizada para exibição pública" },
+        "createdAt": { "type": "string", "description": "Data de criação" }
+      },
+      "required": ["authorName", "rating", "comment", "isApproved"]
+    }
+  },
+  "firestore": {
+    "/vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Coleção de veículos cadastrados na Veneza Veículos"
+    },
+    "/siteSettings/{settingsId}": {
+      "schema": "SiteSettings",
+      "description": "Configurações institucionais oficiais da concessionária"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Avaliações reais de clientes com links originais"
+    }
+  }
+}
