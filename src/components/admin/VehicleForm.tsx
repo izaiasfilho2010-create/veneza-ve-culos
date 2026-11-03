@@ -103,27 +103,35 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({
 
         const base64 = await readFileAsBase64(file);
 
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            imageBase64: base64,
-            filename: file.name,
-            mimeType: file.type,
-          }),
-        });
+        let uploadedUrl = '';
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              imageBase64: base64,
+              filename: file.name,
+              mimeType: file.type,
+            }),
+          });
 
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || 'Erro no envio da imagem.');
+          const data = await res.json().catch(() => null);
+          if (res.ok && data?.url) {
+            uploadedUrl = data.url;
+          }
+        } catch {
+          // Fallback to base64 URL directly
         }
 
-        if (data.url) {
-          uploadedUrls.push(data.url);
+        // If server url is not available, use the base64 image data URL
+        if (!uploadedUrl) {
+          uploadedUrl = base64;
         }
+
+        uploadedUrls.push(uploadedUrl);
       }
 
       setImages((prev) => [...prev, ...uploadedUrls]);

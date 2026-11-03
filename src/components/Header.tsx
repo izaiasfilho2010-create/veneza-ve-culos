@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, MessageCircle, ShieldCheck } from 'lucide-react';
+import { Menu, X, MessageCircle, ShieldCheck, Lock } from 'lucide-react';
 import { SiteSettings } from '../types';
 
 interface HeaderProps {
@@ -19,10 +19,18 @@ export const Header: React.FC<HeaderProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 40);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrolled = window.scrollY > 40;
+          setIsScrolled((prev) => (prev !== scrolled ? scrolled : prev));
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -108,20 +116,24 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Right Actions */}
-          <div className="hidden sm:flex items-center gap-3">
-            {isAdminLoggedIn && (
-              <button
-                onClick={onOpenAdmin}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                  isScrolled
-                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                    : 'bg-black/60 text-[#d4af37] border border-[#d4af37]/40'
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Painel Ativo
-              </button>
-            )}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Botão discreto para o dono da concessionária acessar o painel */}
+            <button
+              onClick={onOpenAdmin}
+              title={isAdminLoggedIn ? "Painel do Dono (Conectado)" : "Painel do Dono (Acesso Restrito)"}
+              aria-label="Acessar painel do dono"
+              className={`p-2.5 rounded-xl transition-all duration-200 border flex items-center justify-center cursor-pointer group ${
+                isAdminLoggedIn
+                  ? isScrolled
+                    ? 'bg-amber-100/80 border-amber-300 text-amber-900 shadow-xs'
+                    : 'bg-[#b8860b]/30 border-[#d4af37] text-[#d4af37]'
+                  : isScrolled
+                    ? 'bg-gray-100 hover:bg-amber-50 border-gray-200 hover:border-amber-300 text-zinc-500 hover:text-amber-800'
+                    : 'bg-black/40 hover:bg-black/60 border-white/15 hover:border-[#d4af37]/60 text-zinc-300 hover:text-[#d4af37]'
+              }`}
+            >
+              <Lock className="w-4 h-4 transition-transform group-hover:scale-110" />
+            </button>
 
             <a
               href={`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`}
@@ -134,8 +146,34 @@ export const Header: React.FC<HeaderProps> = ({
             </a>
           </div>
 
-          {/* Mobile Menu Trigger */}
+          {/* Mobile Right Actions */}
           <div className="flex sm:hidden items-center gap-2">
+            {/* Botão discreto para o dono no mobile */}
+            <button
+              onClick={onOpenAdmin}
+              title="Painel do Dono"
+              aria-label="Acessar painel do dono"
+              className={`p-2 rounded-lg border transition-colors cursor-pointer ${
+                isAdminLoggedIn
+                  ? 'bg-amber-100 border-amber-300 text-amber-800'
+                  : isScrolled
+                    ? 'bg-gray-100 border-gray-200 text-zinc-600'
+                    : 'bg-black/50 border-white/20 text-zinc-300'
+              }`}
+            >
+              <Lock className="w-4 h-4" />
+            </button>
+
+            <a
+              href={`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg bg-[#25D366] text-white shadow-xs"
+              aria-label="WhatsApp"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </a>
+
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={`p-2 rounded-lg transition-colors ${

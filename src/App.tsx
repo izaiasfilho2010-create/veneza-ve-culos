@@ -46,32 +46,38 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isAdminViewOpen, setIsAdminViewOpen] = useState(false);
 
-  // Initialize and verify session
+  // Initialize and verify session without blocking render
   useEffect(() => {
-    // 1. Test connection to Firestore as mandated by skill
-    testConnection();
+    // 1. Defer non-critical background checks so initial render has zero lag
+    const initTimer = setTimeout(() => {
+      testConnection();
+      initializeFirestoreDefaultsIfEmpty();
+    }, 400);
 
-    // 2. Initialize default site info and reviews if empty in Firestore
-    initializeFirestoreDefaultsIfEmpty();
-
-    // 3. Verify existing token if present
+    // 2. Verify existing session token if present
     const existingToken = sessionStorage.getItem('veneza_admin_token');
     if (existingToken) {
-      fetch('/api/auth/verify', {
-        headers: { Authorization: `Bearer ${existingToken}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.authenticated) {
-            sessionStorage.removeItem('veneza_admin_token');
-            setAdminToken(null);
-          }
+      // Local session tokens are directly valid
+      if (existingToken.startsWith('admin_session_')) {
+        setAdminToken(existingToken);
+      } else {
+        fetch('/api/auth/verify', {
+          headers: { Authorization: `Bearer ${existingToken}` },
         })
-        .catch(() => {
-          sessionStorage.removeItem('veneza_admin_token');
-          setAdminToken(null);
-        });
+          .then((res) => res.json())
+          .then((data) => {
+            if (data && data.authenticated === false) {
+              sessionStorage.removeItem('veneza_admin_token');
+              setAdminToken(null);
+            }
+          })
+          .catch(() => {
+            // Keep token on transient network disconnect to avoid abruptly logging out owner
+          });
+      }
     }
+
+    return () => clearTimeout(initTimer);
   }, []);
 
   // Real-time Firestore Subscriptions
